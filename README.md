@@ -1,5 +1,22 @@
+Оригинальный репозиторий: https://github.com/mreferre/yelb
 
-#### Why Yelb 
+Форк сделан в качестве учебных целей. 
+
+Изменены Dockerfile приложений, оптимизированы размеры образов.
+ Сравнение с оригинальными Dockerfile и образами удалось добиться:
+
+| Образ          | Размер оригинального образа | Размер после оптимизации Dockerfile |
+| -------------- | --------------------------- | ----------------------------------- |
+| yelb-appserver | 627MB                       | 289MB                               |
+| yelb-ui        | 167MB                       | 52.2MB                              |
+| yelb-db        | 202MB                       | 38.2MB                              |
+| yelb-redis     | -                           | 27.1MB                              |
+
+Так же попытался оптимизировать использование слоев образов при сборке, чтобы максимально использовать кэш слоев и минимизировать время сборки при изменении кода приложения.
+
+Написан свой docker-compose файл для локальных тестов.
+
+#### Why Yelb
 
 When experimenting with new technologies you often follow tutorials that let you deploy purpose-built simple demo application. With Yelb I wanted to make this experience the other way around: start with an existing application and adapt it to the various technologies, services and platforms you are learning. I found this to be way more fun and useful. 
 
@@ -10,7 +27,6 @@ This was particularly true as I embarked with the challenge of learning differen
 See [this blog post](http://www.it20.info/2018/06/compute-abstractions-on-aws/) for more information.
 
 Yelb can be deployed (potentially) on each of these abstractions from bare metal (EC2) all the way to Lambda (serverless). 
-
 
 #### Yelb architecture
 
@@ -25,7 +41,6 @@ The picture below shows the architecture of Yelb:
 ![yelb-architecture](images/yelb-architecture.png)
 
 Note: the picture above is representative of the instance (EC2) based deployment model and the container based deployment model. The serverless deployment model is architecturally different.
-
 
 #### What does Yelb do?
 
