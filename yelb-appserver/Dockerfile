@@ -1,42 +1,26 @@
-FROM bitnami/ruby:2.7.4
-MAINTAINER massimo@it20.info
-
-################## BEGIN INSTALLATION ######################
-
-# Set the working directory to /app
+FROM ruby:2.6.10-alpine3.15
+CMD ["./startup.sh"]
+EXPOSE 4567
 WORKDIR /app
-
-COPY *.rb ./
-COPY Gemfile Gemfile
-COPY modules modules
 
 ENV LANG=en_us.UTF-8
 ENV LC_ALL=C.UTF-8
 ENV RACK_ENV=production
+ENV YELB_DB_PASSWORD=dbpass
+ENV YELB_DB_USER=dbuser
+ENV YELB_DB_NAME=yelbdatabase
+ENV YELB_DB_PORT=5432
+ENV REDIS_SERVER_ENDPOINT=redis
+ENV TEST_ENV=just_need_new_build
 
-RUN gem install sinatra --no-document
-RUN gem install redis --no-document
-### hack to allow the setup of the pg gem (which would fail otherwise)
-RUN apt-get update
-RUN apt-get install libpq-dev -y
-### end of hack (this would require additional research and optimization)
-RUN gem install pg --no-document
-### this installs the AWS SDK for DynamoDB (so that appserver can talk to DDB Vs the default Postgres/Redis)
-RUN gem install aws-sdk-dynamodb pg --no-document
-# Set the working directory to /
-WORKDIR /
-ADD startup.sh startup.sh
+RUN apk update &&\
+    gem install sinatra --no-document &&\
+    gem install redis --no-document &&\
+    apk add --no-cache libpq-dev build-base &&\
+    gem install pg --no-document &&\
+    gem install aws-sdk-dynamodb
 
-# Lambda adapter
-COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.5.1 /lambda-adapter /lambda-adapter
-
-# Setup Lambda RIE + RIC
-RUN curl -L -o /usr/bin/lambda_rie https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/download/v1.9/aws-lambda-rie-x86_64
-RUN chmod +x /usr/bin/lambda_rie
-RUN gem install aws_lambda_ric
-
-##################### INSTALLATION END #####################
-
-CMD ["./startup.sh"]
-
-
+COPY startup.sh startup.sh
+COPY Gemfile Gemfile
+COPY modules modules
+COPY yelb-appserver.rb yelb-appserver.rb

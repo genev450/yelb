@@ -1,0 +1,35 @@
+version: '3.7'
+
+services:
+  yelb-db:
+    build: ./yelb-db
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+  yelb-appserver:
+    build: ./yelb-appserver
+    ports:
+      - '4567:4567'
+    depends_on:
+      - yelb-db
+      - redis-server
+    environment:
+      - REDIS_SERVER_ENDPOINT=${REDIS_SERVER_ENDPOINT}
+      - YELB_DB_SERVER_ENDPOINT=yelb-db
+      - YELB_DB_USER=${POSTGRES_USER}
+      - YELB_DB_PASSWORD=${POSTGRES_PASSWORD}
+      - RACK_ENV=${RACK_ENV}
+  yelb-ui:
+    build: ./yelb-ui
+    depends_on:
+      - yelb-appserver
+    environment:
+      ENV: prod
+    ports:
+      - '80:80'
+  redis-server:
+    image: redis:6.2.11-alpine3.17
+    ports:
+      - '6379:6379'
